@@ -1,0 +1,7 @@
+.git
+.idea
+.mvn
+target
+artifacts
+*.jmx
+*.log
