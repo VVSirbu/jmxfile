@@ -1,0 +1,28 @@
+jenkins:
+  systemMessage: "JMX to k6 CI/CD Jenkins managed by Terraform and Jenkins Configuration as Code."
+  numExecutors: 2
+  mode: NORMAL
+  scmCheckoutRetryCount: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${JENKINS_ADMIN_ID}"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "${JENKINS_PUBLIC_URL}"
+  globalLibraries:
+    libraries: []
+
+security:
+  scriptApproval:
+    approvedSignatures:
+      - "method java.lang.System getenv java.lang.String"
+
+jobs:
+  - file: /usr/share/jenkins/ref/jobs.groovy

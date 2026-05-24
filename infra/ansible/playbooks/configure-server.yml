@@ -1,0 +1,54 @@
+- name: Configure JMX to k6 Docker host
+  hosts: all
+  become: true
+
+  vars:
+    artifacts_dir: /opt/jmxtok6changer/artifacts
+    docker_network: jmxtok6
+    service_user: jenkins
+    required_packages:
+      - ca-certificates
+      - curl
+      - docker.io
+      - git
+      - maven
+      - unzip
+
+  tasks:
+    - name: Install required packages
+      ansible.builtin.apt:
+        name: "{{ required_packages }}"
+        state: present
+        update_cache: true
+      when: ansible_facts.os_family == "Debian"
+
+    - name: Ensure Docker service is enabled and running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Ensure service user exists
+      ansible.builtin.user:
+        name: "{{ service_user }}"
+        state: present
+        groups: docker
+        append: true
+
+    - name: Ensure artifacts directory exists
+      ansible.builtin.file:
+        path: "{{ artifacts_dir }}"
+        state: directory
+        owner: "{{ service_user }}"
+        group: "{{ service_user }}"
+        mode: "0755"
+
+    - name: Check Docker network
+      ansible.builtin.command: "docker network inspect {{ docker_network }}"
+      register: docker_network_check
+      changed_when: false
+      failed_when: false
+
+    - name: Create Docker network
+      ansible.builtin.command: "docker network create {{ docker_network }}"
+      when: docker_network_check.rc != 0

@@ -1,0 +1,9 @@
+jenkins_admin_password = "change-me-please"
+jenkins_public_url     = "http://localhost:8081/"
+
+# Use the real repository URL that Jenkins can clone.
+app_git_repo_url = "https://github.com/example/jmxtok6changer.git"
+app_git_branch   = "main"
+
+# For private repositories, create credentials in Jenkins and set the id here.
+app_git_credentials_id = ""

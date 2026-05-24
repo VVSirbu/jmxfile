@@ -116,6 +116,51 @@ Check the container health endpoint:
 curl.exe http://localhost:8080/actuator/health
 ```
 
+## Jenkins
+
+Jenkins pipeline definitions are available in:
+
+```text
+jenkins/
+```
+
+There are three jobs:
+
+- `jenkins/configure-server.Jenkinsfile` - runs Ansible to prepare the target Docker host
+- `jenkins/deploy.Jenkinsfile` - builds and deploys the service as a Docker container
+- `jenkins/run-k6.Jenkinsfile` - accepts a `CONVERSION_ID`, downloads the generated k6 script, and runs it with Docker
+- `jenkins/destroy.Jenkinsfile` - stops and removes the service container and optional resources
+
+See `jenkins/README.md` for parameters and setup notes.
+
+## Ansible
+
+Ansible server configuration is available in:
+
+```text
+infra/ansible/
+```
+
+It prepares the Docker host used by Jenkins jobs: required packages, Docker service, artifact directory, Docker network, and Docker permissions for the service user.
+
+See `infra/ansible/README.md` for usage.
+
+## Terraform
+
+A Terraform module for provisioning a self-hosted Jenkins CI/CD stack is available in:
+
+```text
+infra/terraform/jenkins/
+```
+
+It creates a Docker-based Jenkins instance with Configuration as Code and preconfigured jobs for:
+
+- service deploy
+- k6 execution by `CONVERSION_ID`
+- service destroy
+
+See `infra/terraform/jenkins/README.md` for setup instructions.
+
 ## Error Responses
 
 Errors are returned as JSON:
