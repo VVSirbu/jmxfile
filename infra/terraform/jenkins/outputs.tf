@@ -17,6 +17,7 @@ output "created_jobs" {
   description = "Pipeline jobs created by Jenkins Configuration as Code and Job DSL."
   value = [
     "jmxtok6/configure-server",
+    "jmxtok6/setup-environment",
     "jmxtok6/deploy",
     "jmxtok6/run-k6",
     "jmxtok6/destroy"

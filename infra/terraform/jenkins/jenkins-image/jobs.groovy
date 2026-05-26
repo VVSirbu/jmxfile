@@ -52,6 +52,12 @@ createPipelineJob(
 )
 
 createPipelineJob(
+        'jmxtok6/setup-environment',
+        'Orchestrates Terraform validation, Ansible server configuration, and service deployment.',
+        'jenkins/setup-environment.Jenkinsfile'
+)
+
+createPipelineJob(
         'jmxtok6/deploy',
         'Builds and deploys the JMX to k6 converter service as a Docker container.',
         'jenkins/deploy.Jenkinsfile'

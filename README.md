@@ -127,6 +127,7 @@ jenkins/
 There are three jobs:
 
 - `jenkins/configure-server.Jenkinsfile` - runs Ansible to prepare the target Docker host
+- `jenkins/setup-environment.Jenkinsfile` - orchestrates Terraform validation, Ansible server setup, and service deploy
 - `jenkins/deploy.Jenkinsfile` - builds and deploys the service as a Docker container
 - `jenkins/run-k6.Jenkinsfile` - accepts a `CONVERSION_ID`, downloads the generated k6 script, and runs it with Docker
 - `jenkins/destroy.Jenkinsfile` - stops and removes the service container and optional resources
@@ -144,6 +145,32 @@ infra/ansible/
 It prepares the Docker host used by Jenkins jobs: required packages, Docker service, artifact directory, Docker network, and Docker permissions for the service user.
 
 See `infra/ansible/README.md` for usage.
+
+## Bootstrap
+
+Local bootstrap scripts are available in:
+
+```text
+scripts/
+```
+
+For a fresh server, copy `scripts/bootstrap-server.env.example` to `scripts/bootstrap-server.env`, fill in the server IP, SSH user, repository URL, and Jenkins password, then run:
+
+```powershell
+.\scripts\run-bootstrap.ps1
+```
+
+The script connects to the server over SSH, installs prerequisites, clones the project, applies the Terraform Jenkins stack, and waits for Jenkins to become available.
+
+If you prefer to copy the files to the server and run everything there, use:
+
+```bash
+cp scripts/server-bootstrap.env.example scripts/server-bootstrap.env
+nano scripts/server-bootstrap.env
+bash scripts/server-bootstrap.sh
+```
+
+See `scripts/README.md` for details.
 
 ## Terraform
 

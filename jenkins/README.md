@@ -3,6 +3,7 @@
 This directory contains three separate Jenkins declarative pipelines:
 
 - `configure-server.Jenkinsfile` - runs Ansible to prepare the target Docker host
+- `setup-environment.Jenkinsfile` - orchestrates Terraform validation, Ansible configuration, and service deployment
 - `deploy.Jenkinsfile` - builds and deploys the service as a Docker container
 - `run-k6.Jenkinsfile` - downloads a generated k6 script by conversion id and runs it
 - `destroy.Jenkinsfile` - stops and removes the deployed service resources
@@ -22,6 +23,30 @@ The Jenkins agent that runs these jobs must have:
 The deploy, run-k6, and destroy pipelines are designed for the common setup where Jenkins can access the target Docker host. The Terraform Jenkins stack mounts the host Docker socket into Jenkins for that purpose.
 
 The configure-server pipeline uses Ansible over SSH. If Jenkins runs in Docker, `localhost` means the Jenkins container, not the host server. Use an inventory file with the real target host and provide an SSH credential id.
+
+## Setup Environment Job
+
+Create a Jenkins Pipeline job that points to:
+
+```text
+jenkins/setup-environment.Jenkinsfile
+```
+
+This is the recommended entry point after the server bootstrap has created Jenkins. It can:
+
+- validate Terraform files
+- run the `jmxtok6/configure-server` Ansible job
+- run the `jmxtok6/deploy` service deployment job
+
+Important parameters:
+
+- `RUN_TERRAFORM_VALIDATE` - validate Terraform files before setup
+- `RUN_ANSIBLE_CONFIGURE` - run Ansible server configuration
+- `RUN_DEPLOY` - deploy the service after configuration
+- `ANSIBLE_INVENTORY` - inventory file, for example `infra/ansible/inventory/server.ini`
+- `SSH_CREDENTIALS_ID` - Jenkins SSH private key credential id
+- `SERVICE_USER` - Linux user allowed to operate Docker
+- `IMAGE_NAME`, `IMAGE_TAG`, `CONTAINER_NAME`, `HOST_PORT`, `ARTIFACTS_DIR`, `DOCKER_NETWORK` - passed to the deploy job
 
 ## Configure Server Job
 
