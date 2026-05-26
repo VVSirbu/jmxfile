@@ -6,7 +6,7 @@ if (!repoUrl?.trim()) {
     throw new IllegalStateException('APP_GIT_REPO_URL is required')
 }
 
-def createPipelineJob = { String jobName, String descriptionText, String scriptPath ->
+def createPipelineJob = { String jobName, String descriptionText, String pipelineScriptPath ->
     pipelineJob(jobName) {
         description(descriptionText)
         keepDependencies(false)
@@ -34,7 +34,7 @@ def createPipelineJob = { String jobName, String descriptionText, String scriptP
                         }
                     }
                 }
-                scriptPath(scriptPath)
+                scriptPath(pipelineScriptPath)
                 lightweight(true)
             }
         }
