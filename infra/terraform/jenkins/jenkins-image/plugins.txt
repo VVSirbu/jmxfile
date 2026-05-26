@@ -9,4 +9,5 @@ job-dsl
 pipeline-model-definition
 pipeline-utility-steps
 ssh-agent
+timestamper
 workflow-aggregator
