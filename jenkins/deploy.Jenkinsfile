@@ -18,7 +18,14 @@ pipeline {
     }
 
     environment {
-        SERVICE_URL = "http://localhost:${params.HOST_PORT}"
+        IMAGE_NAME_VALUE = "${params.IMAGE_NAME ?: 'jmxtok6changer'}"
+        IMAGE_TAG_VALUE = "${params.IMAGE_TAG ?: 'latest'}"
+        CONTAINER_NAME_VALUE = "${params.CONTAINER_NAME ?: 'jmxtok6changer'}"
+        HOST_PORT_VALUE = "${params.HOST_PORT ?: '8080'}"
+        ARTIFACTS_DIR_VALUE = "${params.ARTIFACTS_DIR ?: '/opt/jmxtok6changer/artifacts'}"
+        DOCKER_NETWORK_VALUE = "${params.DOCKER_NETWORK ?: 'jmxtok6'}"
+        RECREATE_CONTAINER_VALUE = "${params.RECREATE_CONTAINER == null ? true : params.RECREATE_CONTAINER}"
+        SERVICE_URL = "http://localhost:${params.HOST_PORT ?: '8080'}"
     }
 
     stages {
@@ -26,12 +33,12 @@ pipeline {
             steps {
                 sh '''
                     set -eu
-                    test -n "$IMAGE_NAME"
-                    test -n "$IMAGE_TAG"
-                    test -n "$CONTAINER_NAME"
-                    test -n "$HOST_PORT"
-                    test -n "$ARTIFACTS_DIR"
-                    test -n "$DOCKER_NETWORK"
+                    test -n "$IMAGE_NAME_VALUE"
+                    test -n "$IMAGE_TAG_VALUE"
+                    test -n "$CONTAINER_NAME_VALUE"
+                    test -n "$HOST_PORT_VALUE"
+                    test -n "$ARTIFACTS_DIR_VALUE"
+                    test -n "$DOCKER_NETWORK_VALUE"
                 '''
             }
         }
@@ -47,7 +54,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t "$IMAGE_NAME:$IMAGE_TAG" .'
+                sh 'docker build -t "$IMAGE_NAME_VALUE:$IMAGE_TAG_VALUE" .'
             }
         }
 
@@ -56,25 +63,25 @@ pipeline {
                 sh '''
                     set -eu
 
-                    docker network inspect "$DOCKER_NETWORK" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK"
-                    mkdir -p "$ARTIFACTS_DIR"
+                    docker network inspect "$DOCKER_NETWORK_VALUE" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK_VALUE"
+                    mkdir -p "$ARTIFACTS_DIR_VALUE"
 
-                    if [ "$RECREATE_CONTAINER" = "true" ]; then
-                      docker rm -f "$CONTAINER_NAME" >/dev/null 2>&1 || true
+                    if [ "$RECREATE_CONTAINER_VALUE" = "true" ]; then
+                      docker rm -f "$CONTAINER_NAME_VALUE" >/dev/null 2>&1 || true
                     fi
 
-                    if docker ps -a --format '{{.Names}}' | grep -Fx "$CONTAINER_NAME" >/dev/null; then
-                      echo "Container $CONTAINER_NAME already exists. Set RECREATE_CONTAINER=true to replace it."
+                    if docker ps -a --format '{{.Names}}' | grep -Fx "$CONTAINER_NAME_VALUE" >/dev/null; then
+                      echo "Container $CONTAINER_NAME_VALUE already exists. Set RECREATE_CONTAINER=true to replace it."
                       exit 1
                     fi
 
                     docker run -d \
-                      --name "$CONTAINER_NAME" \
+                      --name "$CONTAINER_NAME_VALUE" \
                       --restart unless-stopped \
-                      --network "$DOCKER_NETWORK" \
-                      -p "$HOST_PORT:8080" \
-                      -v "$ARTIFACTS_DIR:/app/artifacts" \
-                      "$IMAGE_NAME:$IMAGE_TAG"
+                      --network "$DOCKER_NETWORK_VALUE" \
+                      -p "$HOST_PORT_VALUE:8080" \
+                      -v "$ARTIFACTS_DIR_VALUE:/app/artifacts" \
+                      "$IMAGE_NAME_VALUE:$IMAGE_TAG_VALUE"
                 '''
             }
         }
@@ -93,7 +100,7 @@ pipeline {
                       sleep 2
                     done
 
-                    docker logs "$CONTAINER_NAME" --tail 200 || true
+                    docker logs "$CONTAINER_NAME_VALUE" --tail 200 || true
                     exit 1
                 '''
             }
@@ -105,7 +112,7 @@ pipeline {
             echo "Deployed ${params.CONTAINER_NAME} at ${env.SERVICE_URL}"
         }
         failure {
-            sh 'docker logs "$CONTAINER_NAME" --tail 200 || true'
+            sh 'docker logs "$CONTAINER_NAME_VALUE" --tail 200 || true'
         }
     }
 }

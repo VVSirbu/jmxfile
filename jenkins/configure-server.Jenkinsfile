@@ -16,18 +16,27 @@ pipeline {
         booleanParam(name: 'CHECK_MODE', defaultValue: false, description: 'Run Ansible in check mode without changing the server')
     }
 
+    environment {
+        ANSIBLE_INVENTORY_VALUE = "${params.ANSIBLE_INVENTORY ?: 'infra/ansible/inventory/server.example.ini'}"
+        ANSIBLE_PLAYBOOK_VALUE = "${params.ANSIBLE_PLAYBOOK ?: 'infra/ansible/playbooks/configure-server.yml'}"
+        ARTIFACTS_DIR_VALUE = "${params.ARTIFACTS_DIR ?: '/opt/jmxtok6changer/artifacts'}"
+        DOCKER_NETWORK_VALUE = "${params.DOCKER_NETWORK ?: 'jmxtok6'}"
+        SERVICE_USER_VALUE = "${params.SERVICE_USER ?: 'ubuntu'}"
+        CHECK_MODE_VALUE = "${params.CHECK_MODE == null ? false : params.CHECK_MODE}"
+    }
+
     stages {
         stage('Validate Parameters') {
             steps {
                 sh '''
                     set -eu
-                    test -n "$ANSIBLE_INVENTORY"
-                    test -n "$ANSIBLE_PLAYBOOK"
-                    test -n "$ARTIFACTS_DIR"
-                    test -n "$DOCKER_NETWORK"
-                    test -n "$SERVICE_USER"
-                    test -f "$ANSIBLE_INVENTORY"
-                    test -f "$ANSIBLE_PLAYBOOK"
+                    test -n "$ANSIBLE_INVENTORY_VALUE"
+                    test -n "$ANSIBLE_PLAYBOOK_VALUE"
+                    test -n "$ARTIFACTS_DIR_VALUE"
+                    test -n "$DOCKER_NETWORK_VALUE"
+                    test -n "$SERVICE_USER_VALUE"
+                    test -f "$ANSIBLE_INVENTORY_VALUE"
+                    test -f "$ANSIBLE_PLAYBOOK_VALUE"
                 '''
             }
         }
@@ -39,17 +48,17 @@ pipeline {
                         sh '''
                             set -eu
                             CHECK_ARGS=""
-                            if [ "$CHECK_MODE" = "true" ]; then
+                            if [ "$CHECK_MODE_VALUE" = "true" ]; then
                               CHECK_ARGS="--check --diff"
                             fi
 
                             ansible-playbook \
-                              -i "$ANSIBLE_INVENTORY" \
-                              "$ANSIBLE_PLAYBOOK" \
+                              -i "$ANSIBLE_INVENTORY_VALUE" \
+                              "$ANSIBLE_PLAYBOOK_VALUE" \
                               $CHECK_ARGS \
-                              -e "artifacts_dir=$ARTIFACTS_DIR" \
-                              -e "docker_network=$DOCKER_NETWORK" \
-                              -e "service_user=$SERVICE_USER"
+                              -e "artifacts_dir=$ARTIFACTS_DIR_VALUE" \
+                              -e "docker_network=$DOCKER_NETWORK_VALUE" \
+                              -e "service_user=$SERVICE_USER_VALUE"
                         '''
                     }
 

@@ -25,17 +25,29 @@ pipeline {
         booleanParam(name: 'RECREATE_CONTAINER', defaultValue: true, description: 'Stop and remove an existing container before deploy')
     }
 
+    environment {
+        ANSIBLE_INVENTORY_VALUE = "${params.ANSIBLE_INVENTORY ?: 'infra/ansible/inventory/server.example.ini'}"
+        SSH_CREDENTIALS_ID_VALUE = "${params.SSH_CREDENTIALS_ID ?: ''}"
+        SERVICE_USER_VALUE = "${params.SERVICE_USER ?: 'ubuntu'}"
+        IMAGE_NAME_VALUE = "${params.IMAGE_NAME ?: 'jmxtok6changer'}"
+        IMAGE_TAG_VALUE = "${params.IMAGE_TAG ?: 'latest'}"
+        CONTAINER_NAME_VALUE = "${params.CONTAINER_NAME ?: 'jmxtok6changer'}"
+        HOST_PORT_VALUE = "${params.HOST_PORT ?: '8080'}"
+        ARTIFACTS_DIR_VALUE = "${params.ARTIFACTS_DIR ?: '/opt/jmxtok6changer/artifacts'}"
+        DOCKER_NETWORK_VALUE = "${params.DOCKER_NETWORK ?: 'jmxtok6'}"
+    }
+
     stages {
         stage('Validate Inputs') {
             steps {
                 sh '''
                     set -eu
-                    test -n "$ARTIFACTS_DIR"
-                    test -n "$DOCKER_NETWORK"
-                    test -n "$IMAGE_NAME"
-                    test -n "$IMAGE_TAG"
-                    test -n "$CONTAINER_NAME"
-                    test -n "$HOST_PORT"
+                    test -n "$ARTIFACTS_DIR_VALUE"
+                    test -n "$DOCKER_NETWORK_VALUE"
+                    test -n "$IMAGE_NAME_VALUE"
+                    test -n "$IMAGE_TAG_VALUE"
+                    test -n "$CONTAINER_NAME_VALUE"
+                    test -n "$HOST_PORT_VALUE"
                 '''
             }
         }
@@ -61,12 +73,12 @@ pipeline {
                 build job: 'jmxtok6/configure-server',
                         wait: true,
                         parameters: [
-                                string(name: 'ANSIBLE_INVENTORY', value: params.ANSIBLE_INVENTORY),
+                                string(name: 'ANSIBLE_INVENTORY', value: env.ANSIBLE_INVENTORY_VALUE),
                                 string(name: 'ANSIBLE_PLAYBOOK', value: 'infra/ansible/playbooks/configure-server.yml'),
-                                string(name: 'SSH_CREDENTIALS_ID', value: params.SSH_CREDENTIALS_ID),
-                                string(name: 'ARTIFACTS_DIR', value: params.ARTIFACTS_DIR),
-                                string(name: 'DOCKER_NETWORK', value: params.DOCKER_NETWORK),
-                                string(name: 'SERVICE_USER', value: params.SERVICE_USER),
+                                string(name: 'SSH_CREDENTIALS_ID', value: env.SSH_CREDENTIALS_ID_VALUE),
+                                string(name: 'ARTIFACTS_DIR', value: env.ARTIFACTS_DIR_VALUE),
+                                string(name: 'DOCKER_NETWORK', value: env.DOCKER_NETWORK_VALUE),
+                                string(name: 'SERVICE_USER', value: env.SERVICE_USER_VALUE),
                                 booleanParam(name: 'CHECK_MODE', value: false)
                         ]
             }
@@ -80,12 +92,12 @@ pipeline {
                 build job: 'jmxtok6/deploy',
                         wait: true,
                         parameters: [
-                                string(name: 'IMAGE_NAME', value: params.IMAGE_NAME),
-                                string(name: 'IMAGE_TAG', value: params.IMAGE_TAG),
-                                string(name: 'CONTAINER_NAME', value: params.CONTAINER_NAME),
-                                string(name: 'HOST_PORT', value: params.HOST_PORT),
-                                string(name: 'ARTIFACTS_DIR', value: params.ARTIFACTS_DIR),
-                                string(name: 'DOCKER_NETWORK', value: params.DOCKER_NETWORK),
+                                string(name: 'IMAGE_NAME', value: env.IMAGE_NAME_VALUE),
+                                string(name: 'IMAGE_TAG', value: env.IMAGE_TAG_VALUE),
+                                string(name: 'CONTAINER_NAME', value: env.CONTAINER_NAME_VALUE),
+                                string(name: 'HOST_PORT', value: env.HOST_PORT_VALUE),
+                                string(name: 'ARTIFACTS_DIR', value: env.ARTIFACTS_DIR_VALUE),
+                                string(name: 'DOCKER_NETWORK', value: env.DOCKER_NETWORK_VALUE),
                                 booleanParam(name: 'RUN_TESTS', value: params.RUN_TESTS),
                                 booleanParam(name: 'RECREATE_CONTAINER', value: params.RECREATE_CONTAINER)
                         ]

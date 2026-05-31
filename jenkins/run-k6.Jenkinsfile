@@ -16,16 +16,26 @@ pipeline {
         booleanParam(name: 'CLEAN_RESULTS', defaultValue: true, description: 'Clean previous k6 result files before running')
     }
 
+    environment {
+        CONVERSION_ID_VALUE = "${params.CONVERSION_ID ?: ''}"
+        SERVICE_URL_VALUE = "${params.SERVICE_URL ?: 'http://localhost:8080'}"
+        K6_IMAGE_VALUE = "${params.K6_IMAGE ?: 'grafana/k6:latest'}"
+        K6_ARGS_VALUE = "${params.K6_ARGS ?: '--summary-export summary.json'}"
+        RESULTS_DIR_VALUE = "${params.RESULTS_DIR ?: 'k6-results'}"
+        DOCKER_NETWORK_VALUE = "${params.DOCKER_NETWORK ?: 'jmxtok6'}"
+        CLEAN_RESULTS_VALUE = "${params.CLEAN_RESULTS == null ? true : params.CLEAN_RESULTS}"
+    }
+
     stages {
         stage('Validate Parameters') {
             steps {
                 sh '''
                     set -eu
-                    test -n "$CONVERSION_ID"
-                    test -n "$SERVICE_URL"
-                    test -n "$K6_IMAGE"
-                    test -n "$RESULTS_DIR"
-                    test -n "$DOCKER_NETWORK"
+                    test -n "$CONVERSION_ID_VALUE"
+                    test -n "$SERVICE_URL_VALUE"
+                    test -n "$K6_IMAGE_VALUE"
+                    test -n "$RESULTS_DIR_VALUE"
+                    test -n "$DOCKER_NETWORK_VALUE"
                 '''
             }
         }
@@ -34,10 +44,10 @@ pipeline {
             steps {
                 sh '''
                     set -eu
-                    if [ "$CLEAN_RESULTS" = "true" ]; then
-                      rm -rf "$RESULTS_DIR"
+                    if [ "$CLEAN_RESULTS_VALUE" = "true" ]; then
+                      rm -rf "$RESULTS_DIR_VALUE"
                     fi
-                    mkdir -p "$RESULTS_DIR"
+                    mkdir -p "$RESULTS_DIR_VALUE"
                 '''
             }
         }
@@ -46,16 +56,16 @@ pipeline {
             steps {
                 sh '''
                     set -eu
-                    SCRIPT_URL="${SERVICE_URL%/}/api/v1/conversions/$CONVERSION_ID/script"
+                    SCRIPT_URL="${SERVICE_URL_VALUE%/}/api/v1/conversions/$CONVERSION_ID_VALUE/script"
                     echo "Downloading generated script from $SCRIPT_URL"
-                    curl -fsS "$SCRIPT_URL" -o "$RESULTS_DIR/$CONVERSION_ID.k6.js"
-                    test -s "$RESULTS_DIR/$CONVERSION_ID.k6.js"
-                    cat > "$RESULTS_DIR/run-metadata.json" <<EOF
+                    curl -fsS "$SCRIPT_URL" -o "$RESULTS_DIR_VALUE/$CONVERSION_ID_VALUE.k6.js"
+                    test -s "$RESULTS_DIR_VALUE/$CONVERSION_ID_VALUE.k6.js"
+                    cat > "$RESULTS_DIR_VALUE/run-metadata.json" <<EOF
 {
-  "conversionId": "$CONVERSION_ID",
-  "serviceUrl": "$SERVICE_URL",
-  "k6Image": "$K6_IMAGE",
-  "k6Args": "$K6_ARGS",
+  "conversionId": "$CONVERSION_ID_VALUE",
+  "serviceUrl": "$SERVICE_URL_VALUE",
+  "k6Image": "$K6_IMAGE_VALUE",
+  "k6Args": "$K6_ARGS_VALUE",
   "buildUrl": "$BUILD_URL"
 }
 EOF
@@ -67,16 +77,16 @@ EOF
             steps {
                 sh '''
                     set -eu
-                    docker network inspect "$DOCKER_NETWORK" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK"
+                    docker network inspect "$DOCKER_NETWORK_VALUE" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK_VALUE"
                     set +e
                     docker run --rm \
-                      --network "$DOCKER_NETWORK" \
-                      -v "$PWD/$RESULTS_DIR:/scripts" \
+                      --network "$DOCKER_NETWORK_VALUE" \
+                      -v "$PWD/$RESULTS_DIR_VALUE:/scripts" \
                       -w /scripts \
-                      "$K6_IMAGE" run $K6_ARGS "$CONVERSION_ID.k6.js" > "$RESULTS_DIR/k6-output.log" 2>&1
+                      "$K6_IMAGE_VALUE" run $K6_ARGS_VALUE "$CONVERSION_ID_VALUE.k6.js" > "$RESULTS_DIR_VALUE/k6-output.log" 2>&1
                     K6_EXIT_CODE=$?
                     set -e
-                    cat "$RESULTS_DIR/k6-output.log"
+                    cat "$RESULTS_DIR_VALUE/k6-output.log"
                     exit "$K6_EXIT_CODE"
                 '''
             }
@@ -85,7 +95,7 @@ EOF
 
     post {
         always {
-            archiveArtifacts artifacts: "${params.RESULTS_DIR}/**", allowEmptyArchive: true
+            archiveArtifacts artifacts: "${env.RESULTS_DIR_VALUE}/**", allowEmptyArchive: true
         }
     }
 }
