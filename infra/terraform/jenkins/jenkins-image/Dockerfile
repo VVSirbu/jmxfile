@@ -3,7 +3,7 @@ FROM jenkins/jenkins:lts-jdk17
 USER root
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ansible docker.io curl git maven openssh-client unzip \
+    && apt-get install -y --no-install-recommends ansible docker.io curl git maven openssh-client sshpass unzip \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSLo /tmp/terraform.zip https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip \

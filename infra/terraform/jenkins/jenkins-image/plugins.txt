@@ -3,6 +3,7 @@ blueocean
 cloudbees-folder
 configuration-as-code
 credentials
+credentials-binding
 docker-workflow
 git
 job-dsl

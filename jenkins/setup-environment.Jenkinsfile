@@ -14,7 +14,9 @@ pipeline {
         string(name: 'ANSIBLE_INVENTORY', defaultValue: '', description: 'Optional inventory file from Git. Leave empty to generate inventory from TARGET_HOST/TARGET_USER')
         string(name: 'TARGET_HOST', defaultValue: '', description: 'Target server IP or hostname for generated Ansible inventory')
         string(name: 'TARGET_USER', defaultValue: 'jmxtok6', description: 'SSH user for generated Ansible inventory')
-        string(name: 'SSH_CREDENTIALS_ID', defaultValue: '', description: 'Optional Jenkins SSH private key credentials id for the target server')
+        choice(name: 'SSH_AUTH_MODE', choices: ['key', 'password', 'none'], description: 'How Ansible authenticates to the target server')
+        string(name: 'SSH_CREDENTIALS_ID', defaultValue: '', description: 'Jenkins SSH private key credentials id when SSH_AUTH_MODE=key')
+        string(name: 'SSH_PASSWORD_CREDENTIALS_ID', defaultValue: '', description: 'Jenkins username/password credentials id when SSH_AUTH_MODE=password')
         string(name: 'SERVICE_USER', defaultValue: 'ubuntu', description: 'Linux user allowed to operate Docker on the target server')
 
         string(name: 'IMAGE_NAME', defaultValue: 'jmxtok6changer', description: 'Docker image name to build')
@@ -31,7 +33,9 @@ pipeline {
         ANSIBLE_INVENTORY_VALUE = "${params.ANSIBLE_INVENTORY ?: ''}"
         TARGET_HOST_VALUE = "${params.TARGET_HOST ?: ''}"
         TARGET_USER_VALUE = "${params.TARGET_USER ?: 'jmxtok6'}"
+        SSH_AUTH_MODE_VALUE = "${params.SSH_AUTH_MODE ?: 'key'}"
         SSH_CREDENTIALS_ID_VALUE = "${params.SSH_CREDENTIALS_ID ?: ''}"
+        SSH_PASSWORD_CREDENTIALS_ID_VALUE = "${params.SSH_PASSWORD_CREDENTIALS_ID ?: ''}"
         SERVICE_USER_VALUE = "${params.SERVICE_USER ?: 'ubuntu'}"
         IMAGE_NAME_VALUE = "${params.IMAGE_NAME ?: 'jmxtok6changer'}"
         IMAGE_TAG_VALUE = "${params.IMAGE_TAG ?: 'latest'}"
@@ -81,7 +85,9 @@ pipeline {
                                 string(name: 'TARGET_HOST', value: env.TARGET_HOST_VALUE),
                                 string(name: 'TARGET_USER', value: env.TARGET_USER_VALUE),
                                 string(name: 'ANSIBLE_PLAYBOOK', value: 'infra/ansible/playbooks/configure-server.yml'),
+                                string(name: 'SSH_AUTH_MODE', value: env.SSH_AUTH_MODE_VALUE),
                                 string(name: 'SSH_CREDENTIALS_ID', value: env.SSH_CREDENTIALS_ID_VALUE),
+                                string(name: 'SSH_PASSWORD_CREDENTIALS_ID', value: env.SSH_PASSWORD_CREDENTIALS_ID_VALUE),
                                 string(name: 'ARTIFACTS_DIR', value: env.ARTIFACTS_DIR_VALUE),
                                 string(name: 'DOCKER_NETWORK', value: env.DOCKER_NETWORK_VALUE),
                                 string(name: 'SERVICE_USER', value: env.SERVICE_USER_VALUE),

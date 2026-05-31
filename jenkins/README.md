@@ -46,7 +46,9 @@ Important parameters:
 - `ANSIBLE_INVENTORY` - optional inventory file from Git
 - `TARGET_HOST` - target server IP or hostname when `ANSIBLE_INVENTORY` is empty
 - `TARGET_USER` - SSH user for generated Ansible inventory
-- `SSH_CREDENTIALS_ID` - Jenkins SSH private key credential id
+- `SSH_AUTH_MODE` - `key`, `password`, or `none`
+- `SSH_CREDENTIALS_ID` - Jenkins SSH private key credential id when `SSH_AUTH_MODE=key`
+- `SSH_PASSWORD_CREDENTIALS_ID` - Jenkins username/password credential id when `SSH_AUTH_MODE=password`
 - `SERVICE_USER` - Linux user allowed to operate Docker
 - `IMAGE_NAME`, `IMAGE_TAG`, `CONTAINER_NAME`, `HOST_PORT`, `ARTIFACTS_DIR`, `DOCKER_NETWORK` - passed to the deploy job
 
@@ -63,7 +65,9 @@ Important parameters:
 - `ANSIBLE_INVENTORY` - optional inventory file from Git
 - `TARGET_HOST` - target server IP or hostname when `ANSIBLE_INVENTORY` is empty
 - `TARGET_USER` - SSH user for generated Ansible inventory
-- `SSH_CREDENTIALS_ID` - Jenkins SSH private key credential id
+- `SSH_AUTH_MODE` - `key`, `password`, or `none`
+- `SSH_CREDENTIALS_ID` - Jenkins SSH private key credential id when `SSH_AUTH_MODE=key`
+- `SSH_PASSWORD_CREDENTIALS_ID` - Jenkins username/password credential id when `SSH_AUTH_MODE=password`
 - `ARTIFACTS_DIR` - host directory for generated scripts
 - `DOCKER_NETWORK` - shared Docker network
 - `SERVICE_USER` - Linux user allowed to operate Docker
