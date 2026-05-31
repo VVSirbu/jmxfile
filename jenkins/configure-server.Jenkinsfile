@@ -19,6 +19,8 @@ pipeline {
     }
 
     environment {
+        ANSIBLE_CONFIG = "infra/ansible/ansible.cfg"
+        ANSIBLE_HOST_KEY_CHECKING = "False"
         ANSIBLE_INVENTORY_VALUE = "${params.ANSIBLE_INVENTORY ?: ''}"
         TARGET_HOST_VALUE = "${params.TARGET_HOST ?: ''}"
         TARGET_USER_VALUE = "${params.TARGET_USER ?: 'jmxtok6'}"
