@@ -40,11 +40,11 @@ pipeline {
                     test -n "$SERVICE_USER_VALUE"
                     test -f "$ANSIBLE_PLAYBOOK_VALUE"
 
-                    if [ -n "$ANSIBLE_INVENTORY_VALUE" ]; then
-                      test -f "$ANSIBLE_INVENTORY_VALUE"
+                    if [ -n "${ANSIBLE_INVENTORY_VALUE:-}" ]; then
+                      test -f "${ANSIBLE_INVENTORY_VALUE}"
                     else
-                      test -n "$TARGET_HOST_VALUE"
-                      test -n "$TARGET_USER_VALUE"
+                      test -n "${TARGET_HOST_VALUE:-}"
+                      test -n "${TARGET_USER_VALUE:-}"
                     fi
                 '''
             }
@@ -56,12 +56,12 @@ pipeline {
                     def runAnsible = {
                         sh '''
                             set -eu
-                            INVENTORY_FILE="$ANSIBLE_INVENTORY_VALUE"
+                            INVENTORY_FILE="${ANSIBLE_INVENTORY_VALUE:-}"
                             if [ -z "$INVENTORY_FILE" ]; then
                               INVENTORY_FILE=".generated-ansible-inventory.ini"
                               cat > "$INVENTORY_FILE" <<EOF
 [jmxtok6]
-target ansible_host=$TARGET_HOST_VALUE ansible_user=$TARGET_USER_VALUE
+target ansible_host=${TARGET_HOST_VALUE:-} ansible_user=${TARGET_USER_VALUE:-}
 EOF
                             fi
 
