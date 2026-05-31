@@ -43,7 +43,9 @@ Important parameters:
 - `RUN_TERRAFORM_VALIDATE` - validate Terraform files before setup
 - `RUN_ANSIBLE_CONFIGURE` - run Ansible server configuration
 - `RUN_DEPLOY` - deploy the service after configuration
-- `ANSIBLE_INVENTORY` - inventory file, for example `infra/ansible/inventory/server.ini`
+- `ANSIBLE_INVENTORY` - optional inventory file from Git
+- `TARGET_HOST` - target server IP or hostname when `ANSIBLE_INVENTORY` is empty
+- `TARGET_USER` - SSH user for generated Ansible inventory
 - `SSH_CREDENTIALS_ID` - Jenkins SSH private key credential id
 - `SERVICE_USER` - Linux user allowed to operate Docker
 - `IMAGE_NAME`, `IMAGE_TAG`, `CONTAINER_NAME`, `HOST_PORT`, `ARTIFACTS_DIR`, `DOCKER_NETWORK` - passed to the deploy job
@@ -58,7 +60,9 @@ jenkins/configure-server.Jenkinsfile
 
 Important parameters:
 
-- `ANSIBLE_INVENTORY` - inventory file, for example `infra/ansible/inventory/server.ini`
+- `ANSIBLE_INVENTORY` - optional inventory file from Git
+- `TARGET_HOST` - target server IP or hostname when `ANSIBLE_INVENTORY` is empty
+- `TARGET_USER` - SSH user for generated Ansible inventory
 - `SSH_CREDENTIALS_ID` - Jenkins SSH private key credential id
 - `ARTIFACTS_DIR` - host directory for generated scripts
 - `DOCKER_NETWORK` - shared Docker network
