@@ -25,7 +25,8 @@ pipeline {
         ARTIFACTS_DIR_VALUE = "${params.ARTIFACTS_DIR ?: '/opt/jmxtok6changer/artifacts'}"
         DOCKER_NETWORK_VALUE = "${params.DOCKER_NETWORK ?: 'jmxtok6'}"
         RECREATE_CONTAINER_VALUE = "${params.RECREATE_CONTAINER == null ? true : params.RECREATE_CONTAINER}"
-        SERVICE_URL = "http://localhost:${params.HOST_PORT ?: '8080'}"
+        SERVICE_URL = "http://${params.CONTAINER_NAME ?: 'jmxtok6changer'}:8080"
+        PUBLIC_SERVICE_URL = "http://localhost:${params.HOST_PORT ?: '8080'}"
     }
 
     stages {
@@ -92,7 +93,9 @@ pipeline {
                     set -eu
 
                     for attempt in $(seq 1 30); do
-                      if curl -fsS "$SERVICE_URL/actuator/health" | grep -q '"status":"UP"'; then
+                      HEALTH_RESPONSE="$(curl -fsS "$SERVICE_URL/actuator/health" || true)"
+                      echo "$HEALTH_RESPONSE"
+                      if echo "$HEALTH_RESPONSE" | grep -q '"status":"UP"'; then
                         echo "Service is UP: $SERVICE_URL"
                         exit 0
                       fi
@@ -109,7 +112,7 @@ pipeline {
 
     post {
         success {
-            echo "Deployed ${params.CONTAINER_NAME} at ${env.SERVICE_URL}"
+            echo "Deployed ${params.CONTAINER_NAME} at ${env.PUBLIC_SERVICE_URL}"
         }
         failure {
             sh 'docker logs "$CONTAINER_NAME_VALUE" --tail 200 || true'
