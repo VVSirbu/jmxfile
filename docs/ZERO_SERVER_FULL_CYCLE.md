@@ -2,6 +2,8 @@
 
 This guide describes the intended deployment flow for a brand-new server with nothing preinstalled.
 
+For the concise happy-path checklist, see `docs/GOLDEN_PATH.md`.
+
 ## Target Flow
 
 1. Run one bootstrap script on the empty server.

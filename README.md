@@ -2,6 +2,14 @@
 
 Spring Boot API for converting JMeter `.jmx` files into k6 JavaScript scripts.
 
+## Golden Path
+
+For the full happy path from a brand-new server to archived k6 artifacts, use:
+
+```text
+docs/GOLDEN_PATH.md
+```
+
 ## Requirements
 
 - Java 17 or newer
