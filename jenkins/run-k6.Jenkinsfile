@@ -13,6 +13,7 @@ pipeline {
         string(name: 'K6_ARGS', defaultValue: '--summary-export summary.json', description: 'Extra arguments passed to k6 run')
         string(name: 'RESULTS_DIR', defaultValue: 'k6-results', description: 'Workspace directory for downloaded script and reports')
         string(name: 'DOCKER_NETWORK', defaultValue: 'jmxtok6', description: 'Docker network used by the k6 container')
+        string(name: 'JENKINS_CONTAINER_NAME', defaultValue: 'jmxtok6-jenkins', description: 'Jenkins container name used to share the workspace volume with k6')
         booleanParam(name: 'CLEAN_RESULTS', defaultValue: true, description: 'Clean previous k6 result files before running')
     }
 
@@ -23,6 +24,7 @@ pipeline {
         K6_ARGS_VALUE = "${params.K6_ARGS ?: '--summary-export summary.json'}"
         RESULTS_DIR_VALUE = "${params.RESULTS_DIR ?: 'k6-results'}"
         DOCKER_NETWORK_VALUE = "${params.DOCKER_NETWORK ?: 'jmxtok6'}"
+        JENKINS_CONTAINER_NAME_VALUE = "${params.JENKINS_CONTAINER_NAME ?: 'jmxtok6-jenkins'}"
         CLEAN_RESULTS_VALUE = "${params.CLEAN_RESULTS == null ? true : params.CLEAN_RESULTS}"
     }
 
@@ -36,6 +38,7 @@ pipeline {
                     test -n "$K6_IMAGE_VALUE"
                     test -n "$RESULTS_DIR_VALUE"
                     test -n "$DOCKER_NETWORK_VALUE"
+                    test -n "$JENKINS_CONTAINER_NAME_VALUE"
                 '''
             }
         }
@@ -78,11 +81,13 @@ EOF
                 sh '''
                     set -eu
                     docker network inspect "$DOCKER_NETWORK_VALUE" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK_VALUE"
+                    WORKSPACE_RESULTS_DIR="$PWD/$RESULTS_DIR_VALUE"
+                    test -s "$WORKSPACE_RESULTS_DIR/$CONVERSION_ID_VALUE.k6.js"
                     set +e
                     docker run --rm \
                       --network "$DOCKER_NETWORK_VALUE" \
-                      -v "$PWD/$RESULTS_DIR_VALUE:/scripts" \
-                      -w /scripts \
+                      --volumes-from "$JENKINS_CONTAINER_NAME_VALUE" \
+                      -w "$WORKSPACE_RESULTS_DIR" \
                       "$K6_IMAGE_VALUE" run $K6_ARGS_VALUE "$CONVERSION_ID_VALUE.k6.js" > "$RESULTS_DIR_VALUE/k6-output.log" 2>&1
                     K6_EXIT_CODE=$?
                     set -e
