@@ -56,6 +56,19 @@ pipeline {
                     test -n "$IMAGE_TAG_VALUE"
                     test -n "$CONTAINER_NAME_VALUE"
                     test -n "$HOST_PORT_VALUE"
+
+                    case "$SSH_AUTH_MODE_VALUE" in
+                      key|password|none) ;;
+                      *) echo "Unsupported SSH_AUTH_MODE: $SSH_AUTH_MODE_VALUE"; exit 1 ;;
+                    esac
+
+                    if [ "$SSH_AUTH_MODE_VALUE" = "password" ]; then
+                      test -n "$SSH_PASSWORD_CREDENTIALS_ID_VALUE"
+                    fi
+
+                    if [ "$SSH_AUTH_MODE_VALUE" = "key" ]; then
+                      test -n "$SSH_CREDENTIALS_ID_VALUE"
+                    fi
                 '''
             }
         }

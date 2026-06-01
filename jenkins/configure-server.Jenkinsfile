@@ -56,6 +56,14 @@ pipeline {
                       key|password|none) ;;
                       *) echo "Unsupported SSH_AUTH_MODE: $SSH_AUTH_MODE_VALUE"; exit 1 ;;
                     esac
+
+                    if [ "$SSH_AUTH_MODE_VALUE" = "password" ]; then
+                      test -n "${SSH_PASSWORD_CREDENTIALS_ID:-}"
+                    fi
+
+                    if [ "$SSH_AUTH_MODE_VALUE" = "key" ]; then
+                      test -n "${SSH_CREDENTIALS_ID:-}"
+                    fi
                 '''
             }
         }
@@ -66,6 +74,7 @@ pipeline {
                     def runAnsible = {
                         sh '''
                             set -eu
+                            echo "Running Ansible with SSH_AUTH_MODE=$SSH_AUTH_MODE_VALUE"
                             INVENTORY_FILE="${ANSIBLE_INVENTORY_VALUE:-}"
                             INVENTORY_USER="${ANSIBLE_LOGIN_USER:-${TARGET_USER_VALUE:-}}"
                             if [ -z "$INVENTORY_FILE" ]; then
