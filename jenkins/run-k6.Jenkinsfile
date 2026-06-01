@@ -55,20 +55,33 @@ pipeline {
             }
         }
 
-        stage('Download k6 Script') {
+        stage('Download k6 Bundle') {
             steps {
                 sh '''
                     set -eu
+                    BUNDLE_URL="${SERVICE_URL_VALUE%/}/api/v1/conversions/$CONVERSION_ID_VALUE/bundle"
                     SCRIPT_URL="${SERVICE_URL_VALUE%/}/api/v1/conversions/$CONVERSION_ID_VALUE/script"
-                    echo "Downloading generated script from $SCRIPT_URL"
-                    curl -fsS "$SCRIPT_URL" -o "$RESULTS_DIR_VALUE/$CONVERSION_ID_VALUE.k6.js"
-                    test -s "$RESULTS_DIR_VALUE/$CONVERSION_ID_VALUE.k6.js"
+                    BUNDLE_FILE="$RESULTS_DIR_VALUE/$CONVERSION_ID_VALUE.k6-bundle.zip"
+
+                    echo "Downloading generated bundle from $BUNDLE_URL"
+                    if curl -fsS "$BUNDLE_URL" -o "$BUNDLE_FILE"; then
+                      unzip -o "$BUNDLE_FILE" -d "$RESULTS_DIR_VALUE"
+                    else
+                      echo "Bundle endpoint was not available. Falling back to script-only download from $SCRIPT_URL"
+                      curl -fsS "$SCRIPT_URL" -o "$RESULTS_DIR_VALUE/$CONVERSION_ID_VALUE.k6.js"
+                    fi
+
+                    SCRIPT_FILE="$(find "$RESULTS_DIR_VALUE" -maxdepth 1 -type f -name '*.js' | head -n 1)"
+                    test -n "$SCRIPT_FILE"
+                    test -s "$SCRIPT_FILE"
+                    basename "$SCRIPT_FILE" > "$RESULTS_DIR_VALUE/.script-name"
                     cat > "$RESULTS_DIR_VALUE/run-metadata.json" <<EOF
 {
   "conversionId": "$CONVERSION_ID_VALUE",
   "serviceUrl": "$SERVICE_URL_VALUE",
   "k6Image": "$K6_IMAGE_VALUE",
   "k6Args": "$K6_ARGS_VALUE",
+  "scriptFile": "$(basename "$SCRIPT_FILE")",
   "buildUrl": "$BUILD_URL"
 }
 EOF
@@ -82,13 +95,14 @@ EOF
                     set -eu
                     docker network inspect "$DOCKER_NETWORK_VALUE" >/dev/null 2>&1 || docker network create "$DOCKER_NETWORK_VALUE"
                     WORKSPACE_RESULTS_DIR="$PWD/$RESULTS_DIR_VALUE"
-                    test -s "$WORKSPACE_RESULTS_DIR/$CONVERSION_ID_VALUE.k6.js"
+                    SCRIPT_FILE_NAME="$(cat "$RESULTS_DIR_VALUE/.script-name")"
+                    test -s "$WORKSPACE_RESULTS_DIR/$SCRIPT_FILE_NAME"
                     set +e
                     docker run --rm \
                       --network "$DOCKER_NETWORK_VALUE" \
                       --volumes-from "$JENKINS_CONTAINER_NAME_VALUE" \
                       -w "$WORKSPACE_RESULTS_DIR" \
-                      "$K6_IMAGE_VALUE" run $K6_ARGS_VALUE "$CONVERSION_ID_VALUE.k6.js" > "$RESULTS_DIR_VALUE/k6-output.log" 2>&1
+                      "$K6_IMAGE_VALUE" run $K6_ARGS_VALUE "$SCRIPT_FILE_NAME" > "$RESULTS_DIR_VALUE/k6-output.log" 2>&1
                     K6_EXIT_CODE=$?
                     set -e
                     cat "$RESULTS_DIR_VALUE/k6-output.log"

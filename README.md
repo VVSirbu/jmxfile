@@ -29,6 +29,12 @@ Send a multipart `POST` request with the file field named `file`:
 curl.exe -F "file=@D:\path\to\test.jmx" http://localhost:8080/api/v1/conversions
 ```
 
+If the JMX references CSV data sets or other local files, upload them as repeated `resources` parts. The generated k6 script uses the original base filename, so the uploaded resource name must match the filename referenced by JMeter, for example `opencart_test_users.csv`.
+
+```powershell
+curl.exe -F "file=@D:\path\to\test.jmx" -F "resources=@D:\path\to\opencart_test_users.csv" http://localhost:8080/api/v1/conversions
+```
+
 The upload limit is `10MB`.
 
 Example response:
@@ -39,6 +45,8 @@ Example response:
   "sourceFileName": "test.jmx",
   "generatedFileName": "test.k6.js",
   "downloadUrl": "/api/v1/conversions/0e9cd925-a33f-4b89-8cc8-a5e94c111008/script",
+  "bundleUrl": "/api/v1/conversions/0e9cd925-a33f-4b89-8cc8-a5e94c111008/bundle",
+  "resourceCount": 1,
   "requestCount": 3
 }
 ```
@@ -49,6 +57,14 @@ Use `GET`, not `POST`:
 
 ```powershell
 curl.exe -o result.k6.js http://localhost:8080/api/v1/conversions/0e9cd925-a33f-4b89-8cc8-a5e94c111008/script
+```
+
+### Download k6 bundle
+
+Use this when the script needs CSV or other support files:
+
+```powershell
+curl.exe -o result-bundle.zip http://localhost:8080/api/v1/conversions/0e9cd925-a33f-4b89-8cc8-a5e94c111008/bundle
 ```
 
 ## Swagger

@@ -114,11 +114,12 @@ Important parameters:
 - `K6_ARGS` - extra arguments passed to `k6 run`
 - `RESULTS_DIR` - workspace directory for downloaded script and reports
 - `DOCKER_NETWORK` - Docker network used by the k6 container
+- `JENKINS_CONTAINER_NAME` - Jenkins container used to share the workspace volume with the k6 container
 
-The job downloads:
+The job downloads the complete bundle:
 
 ```text
-GET /api/v1/conversions/{CONVERSION_ID}/script
+GET /api/v1/conversions/{CONVERSION_ID}/bundle
 ```
 
 Then it runs:
@@ -128,6 +129,12 @@ k6 run <downloaded-script>
 ```
 
 The downloaded script and k6 reports are archived as Jenkins artifacts.
+
+If the JMX uses CSV Data Set Config, upload the CSV file during conversion:
+
+```bash
+curl -F "file=@test-plan.jmx" -F "resources=@opencart_test_users.csv" http://YOUR_SERVER:8080/api/v1/conversions
+```
 
 ## Destroy Job
 

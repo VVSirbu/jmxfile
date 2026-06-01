@@ -5,6 +5,8 @@ public record ConversionResponse(
         String sourceFileName,
         String generatedFileName,
         String downloadUrl,
+        String bundleUrl,
+        int resourceCount,
         int requestCount
 ) {
 }

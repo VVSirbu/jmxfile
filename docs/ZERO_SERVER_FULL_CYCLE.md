@@ -156,12 +156,24 @@ Upload a JMX file:
 curl -F "file=@test-plan.jmx" http://YOUR_SERVER_IP:8080/api/v1/conversions
 ```
 
+If the JMX uses CSV Data Set Config, upload the CSV together with the JMX:
+
+```bash
+curl -F "file=@test-plan.jmx" -F "resources=@opencart_test_users.csv" http://YOUR_SERVER_IP:8080/api/v1/conversions
+```
+
 The response contains a `conversionId`.
 
 Download the generated k6 script:
 
 ```bash
 curl -OJ http://YOUR_SERVER_IP:8080/api/v1/conversions/CONVERSION_ID/script
+```
+
+Download the complete k6 bundle with support files:
+
+```bash
+curl -OJ http://YOUR_SERVER_IP:8080/api/v1/conversions/CONVERSION_ID/bundle
 ```
 
 ## 6. Run k6 From Jenkins
