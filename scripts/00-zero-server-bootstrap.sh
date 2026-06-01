@@ -71,6 +71,9 @@ create_admin_user() {
   echo "$ADMIN_USER:$ADMIN_PASSWORD" | sudo_run chpasswd
   sudo_run usermod -aG sudo "$ADMIN_USER"
   sudo_run usermod -aG docker "$ADMIN_USER" || true
+
+  printf '%s ALL=(ALL) NOPASSWD:ALL\n' "$ADMIN_USER" | sudo_run tee "/etc/sudoers.d/$ADMIN_USER" >/dev/null
+  sudo_run chmod 0440 "/etc/sudoers.d/$ADMIN_USER"
 }
 
 prepare_directories() {

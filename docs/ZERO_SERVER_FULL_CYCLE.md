@@ -71,6 +71,14 @@ The script does this:
 apt packages -> Linux user -> directories -> Docker -> Terraform -> git clone -> Terraform Jenkins -> Jenkins jobs
 ```
 
+The automation user is configured with passwordless sudo:
+
+```text
+/etc/sudoers.d/jmxtok6
+```
+
+This is intentional for Jenkins and Ansible automation. Keep this user dedicated to CI/CD tasks.
+
 When it finishes, Jenkins should be available:
 
 ```text

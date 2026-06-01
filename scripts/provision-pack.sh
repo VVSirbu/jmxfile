@@ -71,6 +71,8 @@ create_service_user() {
 
   if [ "$SERVICE_USER_SUDO" = "true" ]; then
     run_sudo usermod -aG sudo "$SERVICE_USER"
+    printf '%s ALL=(ALL) NOPASSWD:ALL\n' "$SERVICE_USER" | run_sudo tee "/etc/sudoers.d/$SERVICE_USER" >/dev/null
+    run_sudo chmod 0440 "/etc/sudoers.d/$SERVICE_USER"
   fi
 
   run_sudo usermod -aG docker "$SERVICE_USER" || true
