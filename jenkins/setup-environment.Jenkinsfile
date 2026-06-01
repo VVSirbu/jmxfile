@@ -14,10 +14,10 @@ pipeline {
         string(name: 'ANSIBLE_INVENTORY', defaultValue: '', description: 'Optional inventory file from Git. Leave empty to generate inventory from TARGET_HOST/TARGET_USER')
         string(name: 'TARGET_HOST', defaultValue: '', description: 'Target server IP or hostname for generated Ansible inventory')
         string(name: 'TARGET_USER', defaultValue: 'jmxtok6', description: 'SSH user for generated Ansible inventory')
-        choice(name: 'SSH_AUTH_MODE', choices: ['key', 'password', 'none'], description: 'How Ansible authenticates to the target server')
+        choice(name: 'SSH_AUTH_MODE', choices: ['password', 'key', 'none'], description: 'How Ansible authenticates to the target server')
         string(name: 'SSH_CREDENTIALS_ID', defaultValue: '', description: 'Jenkins SSH private key credentials id when SSH_AUTH_MODE=key')
-        string(name: 'SSH_PASSWORD_CREDENTIALS_ID', defaultValue: '', description: 'Jenkins username/password credentials id when SSH_AUTH_MODE=password')
-        string(name: 'SERVICE_USER', defaultValue: 'ubuntu', description: 'Linux user allowed to operate Docker on the target server')
+        string(name: 'SSH_PASSWORD_CREDENTIALS_ID', defaultValue: 'jmxtok6-server-password', description: 'Jenkins username/password credentials id when SSH_AUTH_MODE=password')
+        string(name: 'SERVICE_USER', defaultValue: 'jmxtok6', description: 'Linux user allowed to operate Docker on the target server')
 
         string(name: 'IMAGE_NAME', defaultValue: 'jmxtok6changer', description: 'Docker image name to build')
         string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'Docker image tag to deploy')
@@ -33,10 +33,10 @@ pipeline {
         ANSIBLE_INVENTORY_VALUE = "${params.ANSIBLE_INVENTORY ?: ''}"
         TARGET_HOST_VALUE = "${params.TARGET_HOST ?: ''}"
         TARGET_USER_VALUE = "${params.TARGET_USER ?: 'jmxtok6'}"
-        SSH_AUTH_MODE_VALUE = "${params.SSH_AUTH_MODE ?: 'key'}"
+        SSH_AUTH_MODE_VALUE = "${params.SSH_AUTH_MODE ?: 'password'}"
         SSH_CREDENTIALS_ID_VALUE = "${params.SSH_CREDENTIALS_ID ?: ''}"
-        SSH_PASSWORD_CREDENTIALS_ID_VALUE = "${params.SSH_PASSWORD_CREDENTIALS_ID ?: ''}"
-        SERVICE_USER_VALUE = "${params.SERVICE_USER ?: 'ubuntu'}"
+        SSH_PASSWORD_CREDENTIALS_ID_VALUE = "${params.SSH_PASSWORD_CREDENTIALS_ID ?: 'jmxtok6-server-password'}"
+        SERVICE_USER_VALUE = "${params.SERVICE_USER ?: 'jmxtok6'}"
         IMAGE_NAME_VALUE = "${params.IMAGE_NAME ?: 'jmxtok6changer'}"
         IMAGE_TAG_VALUE = "${params.IMAGE_TAG ?: 'latest'}"
         CONTAINER_NAME_VALUE = "${params.CONTAINER_NAME ?: 'jmxtok6changer'}"

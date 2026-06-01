@@ -91,6 +91,10 @@ jenkins_image_tag       = "${JENKINS_IMAGE_TAG}"
 app_git_repo_url        = "${APP_GIT_REPO_URL}"
 app_git_branch          = "${APP_GIT_BRANCH}"
 app_git_credentials_id  = "${APP_GIT_CREDENTIALS_ID}"
+
+target_ssh_password_credentials_id = "${TARGET_SSH_PASSWORD_CREDENTIALS_ID}"
+target_ssh_user                    = "${TARGET_SSH_USER}"
+target_ssh_password                = "${TARGET_SSH_PASSWORD}"
 EOF
 }
 
@@ -148,6 +152,9 @@ JENKINS_ADMIN_USER="${JENKINS_ADMIN_USER:-admin}"
 JENKINS_PORT="${JENKINS_PORT:-8081}"
 APP_GIT_BRANCH="${APP_GIT_BRANCH:-main}"
 APP_GIT_CREDENTIALS_ID="${APP_GIT_CREDENTIALS_ID:-}"
+TARGET_SSH_PASSWORD_CREDENTIALS_ID="${TARGET_SSH_PASSWORD_CREDENTIALS_ID:-jmxtok6-server-password}"
+TARGET_SSH_USER="${TARGET_SSH_USER:-jmxtok6}"
+TARGET_SSH_PASSWORD="${TARGET_SSH_PASSWORD:-}"
 JENKINS_CONTAINER_NAME="${JENKINS_CONTAINER_NAME:-jmxtok6-jenkins}"
 JENKINS_NETWORK_NAME="${JENKINS_NETWORK_NAME:-jmxtok6}"
 JENKINS_IMAGE_NAME="${JENKINS_IMAGE_NAME:-jmxtok6-jenkins}"

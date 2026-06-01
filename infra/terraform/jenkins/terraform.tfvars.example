@@ -7,3 +7,8 @@ app_git_branch   = "main"
 
 # For private repositories, create credentials in Jenkins and set the id here.
 app_git_credentials_id = ""
+
+# Created automatically in Jenkins Configuration as Code for Ansible password auth.
+target_ssh_password_credentials_id = "jmxtok6-server-password"
+target_ssh_user                    = "jmxtok6"
+target_ssh_password                = "change-me-target-user-password"

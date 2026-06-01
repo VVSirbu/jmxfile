@@ -9,6 +9,10 @@ terraform.tfvars
 infra/ansible/inventory/server.ini
 scripts/bootstrap-server.env
 scripts/server-bootstrap.env
+scripts/00-zero-server.env
+scripts/provision-pack.env
+scripts/generated-jenkins-params.env
+scripts/01-jenkins-setup-params.env
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

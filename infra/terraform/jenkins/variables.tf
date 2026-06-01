@@ -79,6 +79,25 @@ variable "app_git_credentials_id" {
   default     = ""
 }
 
+variable "target_ssh_password_credentials_id" {
+  description = "Jenkins username/password credentials id used by Ansible password authentication."
+  type        = string
+  default     = "jmxtok6-server-password"
+}
+
+variable "target_ssh_user" {
+  description = "SSH username Jenkins/Ansible uses for the target server."
+  type        = string
+  default     = "jmxtok6"
+}
+
+variable "target_ssh_password" {
+  description = "SSH password Jenkins/Ansible uses for the target server."
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "docker_sock_path" {
   description = "Host Docker socket path mounted into Jenkins."
   type        = string

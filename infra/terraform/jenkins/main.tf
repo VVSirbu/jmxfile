@@ -59,7 +59,10 @@ resource "docker_container" "jenkins" {
     "JENKINS_PUBLIC_URL=${var.jenkins_public_url}",
     "APP_GIT_REPO_URL=${var.app_git_repo_url}",
     "APP_GIT_BRANCH=${var.app_git_branch}",
-    "APP_GIT_CREDENTIALS_ID=${var.app_git_credentials_id}"
+    "APP_GIT_CREDENTIALS_ID=${var.app_git_credentials_id}",
+    "TARGET_SSH_PASSWORD_CREDENTIALS_ID=${var.target_ssh_password_credentials_id}",
+    "TARGET_SSH_USER=${var.target_ssh_user}",
+    "TARGET_SSH_PASSWORD=${var.target_ssh_password}"
   ]
 
   healthcheck {

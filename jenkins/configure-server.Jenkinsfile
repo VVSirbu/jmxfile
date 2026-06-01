@@ -11,12 +11,12 @@ pipeline {
         string(name: 'TARGET_HOST', defaultValue: '', description: 'Target server IP or hostname used when ANSIBLE_INVENTORY is empty')
         string(name: 'TARGET_USER', defaultValue: 'jmxtok6', description: 'SSH user for generated Ansible inventory')
         string(name: 'ANSIBLE_PLAYBOOK', defaultValue: 'infra/ansible/playbooks/configure-server.yml', description: 'Server configuration playbook')
-        choice(name: 'SSH_AUTH_MODE', choices: ['key', 'password', 'none'], description: 'How Ansible authenticates to the target server')
+        choice(name: 'SSH_AUTH_MODE', choices: ['password', 'key', 'none'], description: 'How Ansible authenticates to the target server')
         string(name: 'SSH_CREDENTIALS_ID', defaultValue: '', description: 'Jenkins SSH private key credentials id when SSH_AUTH_MODE=key')
-        string(name: 'SSH_PASSWORD_CREDENTIALS_ID', defaultValue: '', description: 'Jenkins username/password credentials id when SSH_AUTH_MODE=password')
+        string(name: 'SSH_PASSWORD_CREDENTIALS_ID', defaultValue: 'jmxtok6-server-password', description: 'Jenkins username/password credentials id when SSH_AUTH_MODE=password')
         string(name: 'ARTIFACTS_DIR', defaultValue: '/opt/jmxtok6changer/artifacts', description: 'Host directory for generated k6 artifacts')
         string(name: 'DOCKER_NETWORK', defaultValue: 'jmxtok6', description: 'Docker network for service and k6 containers')
-        string(name: 'SERVICE_USER', defaultValue: 'ubuntu', description: 'Linux user allowed to operate Docker on the target server')
+        string(name: 'SERVICE_USER', defaultValue: 'jmxtok6', description: 'Linux user allowed to operate Docker on the target server')
         booleanParam(name: 'CHECK_MODE', defaultValue: false, description: 'Run Ansible in check mode without changing the server')
     }
 
@@ -26,11 +26,11 @@ pipeline {
         ANSIBLE_INVENTORY_VALUE = "${params.ANSIBLE_INVENTORY ?: ''}"
         TARGET_HOST_VALUE = "${params.TARGET_HOST ?: ''}"
         TARGET_USER_VALUE = "${params.TARGET_USER ?: 'jmxtok6'}"
-        SSH_AUTH_MODE_VALUE = "${params.SSH_AUTH_MODE ?: 'key'}"
+        SSH_AUTH_MODE_VALUE = "${params.SSH_AUTH_MODE ?: 'password'}"
         ANSIBLE_PLAYBOOK_VALUE = "${params.ANSIBLE_PLAYBOOK ?: 'infra/ansible/playbooks/configure-server.yml'}"
         ARTIFACTS_DIR_VALUE = "${params.ARTIFACTS_DIR ?: '/opt/jmxtok6changer/artifacts'}"
         DOCKER_NETWORK_VALUE = "${params.DOCKER_NETWORK ?: 'jmxtok6'}"
-        SERVICE_USER_VALUE = "${params.SERVICE_USER ?: 'ubuntu'}"
+        SERVICE_USER_VALUE = "${params.SERVICE_USER ?: 'jmxtok6'}"
         CHECK_MODE_VALUE = "${params.CHECK_MODE == null ? false : params.CHECK_MODE}"
     }
 
