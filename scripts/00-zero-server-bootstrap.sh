@@ -196,6 +196,15 @@ wait_for_jenkins() {
   fail "Jenkins did not become reachable: $url"
 }
 
+verify_jenkins_tools() {
+  log "Checking Jenkins container tools"
+
+  docker exec "$JENKINS_CONTAINER_NAME" docker --version
+  docker exec "$JENKINS_CONTAINER_NAME" terraform -version
+  docker exec "$JENKINS_CONTAINER_NAME" ansible --version
+  docker exec "$JENKINS_CONTAINER_NAME" sshpass -V
+}
+
 write_next_jenkins_params() {
   log "Writing Jenkins setup-environment parameters"
 
@@ -303,5 +312,6 @@ clone_or_update_repo
 write_terraform_vars
 apply_jenkins_terraform
 wait_for_jenkins
+verify_jenkins_tools
 write_next_jenkins_params
 print_result

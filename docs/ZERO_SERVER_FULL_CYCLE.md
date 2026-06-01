@@ -91,6 +91,15 @@ The script also writes a Jenkins parameter checklist:
 /opt/jmxfile/scripts/01-jenkins-setup-params.env
 ```
 
+Before continuing, verify that the Jenkins container has the required CLIs:
+
+```bash
+docker exec jmxtok6-jenkins docker --version
+docker exec jmxtok6-jenkins terraform -version
+docker exec jmxtok6-jenkins ansible --version
+docker exec jmxtok6-jenkins sshpass -V
+```
+
 ## 3. Run Jenkins Setup Job
 
 Open Jenkins and run:
